@@ -1,5 +1,22 @@
+import { useEffect } from "react";
+
 export default function Home() {
-    return
-     <h1>Bienvenido a Gaming Hub — Descripción del sitio</h1>;
-  }
-  
+  useEffect(() => {
+    // Agregar clase 'home' al body cuando este componente se monta
+    document.body.classList.add('home');
+    
+    // Remover la clase cuando el componente se desmonta
+    return () => {
+      document.body.classList.remove('home');
+    };
+  }, []);
+
+  return (
+    <div className="login-screen">
+      <h1 className="page-title">Bienvenido a COG</h1>
+      <p style={{ fontSize: '18px', color: '#aaa', marginTop: '20px' }}>
+      Companion Of Gamers  
+      </p>
+    </div>
+  );
+}

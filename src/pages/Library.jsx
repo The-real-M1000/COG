@@ -27,7 +27,7 @@ function Library() {
     );
 
   return (
-    <div className="page">
+    <div className="login-screen">
       <h1 className="page-title" style={{ textAlign: "center" }}>
         🎮 Tu Biblioteca
       </h1>

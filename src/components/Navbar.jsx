@@ -16,7 +16,7 @@ export default function Navbar() {
     <nav className={`navbar ${scrolled ? "scrolled" : ""}`}>
       <div className="navbar-logo">Game Hub</div>
       <div className="navbar-links">
-        <Link className="navbar-link" to="/home">Home</Link>
+        <Link className="navbar-link" to="">Home</Link>
         <Link className="navbar-link" to="/library">Library</Link>
         <Link className="navbar-link" to="/played">Played</Link>
         <Link className="navbar-link" to="/recomendation">Recomendation</Link>

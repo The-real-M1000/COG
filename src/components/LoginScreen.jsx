@@ -18,7 +18,7 @@ const LoginScreen = ({ setUser }) => {
 
   return (
     <div className="login-screen">
-      <h1 className="login-title">🎮 Gaming Hub</h1>
+      <h1 className="login-title">👤 Unete ahora</h1>
 
       <button className="login-button" onClick={handleSteamLogin}>
         Iniciar sesión con Steam
