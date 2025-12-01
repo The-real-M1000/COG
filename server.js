@@ -47,8 +47,8 @@ passport.deserializeUser((obj, done) => done(null, obj));
 passport.use(
   new SteamStrategy(
     {
-      returnURL: "http://localhost:5000/auth/steam/return",
-      realm: "http://localhost:5000/",
+      returnURL: "https://cog-lovat.vercel.app/api/auth/steam/return",
+      realm: "https://cog-lovat.vercel.app/",      
       apiKey: STEAM_API_KEY
     },
     function (identifier, profile, done) {
