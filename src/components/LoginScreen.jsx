@@ -2,7 +2,7 @@ import React, { useEffect } from "react";
 
 const LoginScreen = ({ setUser }) => {
   useEffect(() => {
-    fetch("http://localhost:5000/api/user", {
+    fetch("https://cog-lovat.vercel.app/api/user", {
       credentials: "include",
     })
       .then((res) => res.json())
@@ -13,12 +13,12 @@ const LoginScreen = ({ setUser }) => {
   }, [setUser]);
 
   const handleSteamLogin = () => {
-    window.location.href = "http://localhost:5000/auth/steam";
+    window.location.href = "https://cog-lovat.vercel.app//auth/steam";
   };
 
   return (
     <div className="login-screen">
-      <h1 className="login-title">👤 Unete ahora</h1>
+      <h1 className="login-title">Unete ahora 👤</h1>
 
       <button className="login-button" onClick={handleSteamLogin}>
         Iniciar sesión con Steam
