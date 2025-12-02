@@ -3,6 +3,7 @@ import React, { useState, useEffect } from "react";
 function Library() {
   const [library, setLibrary] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
   // 🔹 Usar variable de entorno para el backend
   const API_URL = process.env.REACT_APP_API_URL || "http://localhost:5000";
@@ -11,13 +12,36 @@ function Library() {
     fetch(`${API_URL}/api/library`, {
       credentials: "include",
     })
-      .then((res) => res.json())
-      .then((games) => {
+      .then((res) => {
+        if (!res.ok) {
+          throw new Error(`HTTP error! status: ${res.status}`);
+        }
+        return res.json();
+      })
+      .then((data) => {
+        console.log("📦 Datos recibidos:", data);
+        
+        // Manejar diferentes formatos de respuesta
+        let games = [];
+        
+        if (Array.isArray(data)) {
+          // Si ya es un array
+          games = data;
+        } else if (data.response && Array.isArray(data.response.games)) {
+          // Si viene en formato { response: { games: [...] } }
+          games = data.response.games;
+        } else if (Array.isArray(data.games)) {
+          // Si viene en formato { games: [...] }
+          games = data.games;
+        }
+        
+        console.log("🎮 Juegos procesados:", games);
         setLibrary(games);
         setLoading(false);
       })
       .catch((err) => {
-        console.error("Error cargando librería:", err);
+        console.error("❌ Error cargando librería:", err);
+        setError(err.message);
         setLoading(false);
       });
   }, [API_URL]);
@@ -29,10 +53,31 @@ function Library() {
       </div>
     );
 
+  if (error)
+    return (
+      <div className="page" style={{ textAlign: "center", marginTop: "100px" }}>
+        <h1 className="page-title">😢 Error</h1>
+        <p style={{ color: "#ff6b6b", marginTop: "20px" }}>{error}</p>
+        <p style={{ color: "#aaa", marginTop: "10px" }}>
+          Asegúrate de haber iniciado sesión con Steam
+        </p>
+      </div>
+    );
+
+  if (library.length === 0)
+    return (
+      <div className="page" style={{ textAlign: "center", marginTop: "100px" }}>
+        <h1 className="page-title">📚 Biblioteca vacía</h1>
+        <p style={{ color: "#aaa", marginTop: "20px" }}>
+          No se encontraron juegos en tu biblioteca de Steam
+        </p>
+      </div>
+    );
+
   return (
     <div className="login-screen">
       <h1 className="page-title" style={{ textAlign: "center" }}>
-        🎮 Tu Biblioteca
+        🎮 Tu Biblioteca ({library.length} juegos)
       </h1>
       <div className="games-grid-vertical">
         {library.map((game) => {
