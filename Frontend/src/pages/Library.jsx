@@ -9,9 +9,24 @@ function Library() {
   const API_URL = process.env.REACT_APP_API_URL || "http://localhost:5000";
 
   useEffect(() => {
-    fetch(`${API_URL}/api/library`, {
+    // Primero verificar si hay sesión
+    fetch(`${API_URL}/api/user`, {
       credentials: "include",
+      mode: "cors",
     })
+      .then((res) => {
+        if (!res.ok) {
+          throw new Error(`No autenticado. Inicia sesión primero.`);
+        }
+        return res.json();
+      })
+      .then(() => {
+        // Si hay sesión, obtener biblioteca
+        return fetch(`${API_URL}/api/library`, {
+          credentials: "include",
+          mode: "cors",
+        });
+      })
       .then((res) => {
         if (!res.ok) {
           throw new Error(`HTTP error! status: ${res.status}`);
