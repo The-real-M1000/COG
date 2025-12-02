@@ -9,36 +9,39 @@ function Library() {
   const API_URL = process.env.REACT_APP_API_URL || "http://localhost:5000";
 
   useEffect(() => {
-    // Primero verificar si hay sesión
-    fetch(`${API_URL}/api/user`, {
-      credentials: "include",
-      mode: "cors",
-    })
-      .then((res) => {
-        if (!res.ok) {
-          throw new Error(`No autenticado. Inicia sesión primero.`);
-        }
-        return res.json();
-      })
-      .then(() => {
-        // Si hay sesión, obtener biblioteca
-        return fetch(`${API_URL}/api/library`, {
+    const loadLibrary = async () => {
+      try {
+        // Primero verificar si hay sesión
+        console.log("🔍 Verificando sesión...");
+        const userRes = await fetch(`${API_URL}/api/user`, {
           credentials: "include",
           mode: "cors",
         });
-      })
-      .then((res) => {
-        if (!res.ok) {
-          throw new Error(`HTTP error! status: ${res.status}`);
+
+        if (!userRes.ok) {
+          throw new Error(`No autenticado. Inicia sesión primero.`);
         }
-        return res.json();
-      })
-      .then((data) => {
+
+        const user = await userRes.json();
+        console.log("✅ Usuario autenticado:", user.displayName || user.id);
+
+        // Si hay sesión, obtener biblioteca
+        console.log("📚 Obteniendo biblioteca...");
+        const libraryRes = await fetch(`${API_URL}/api/library`, {
+          credentials: "include",
+          mode: "cors",
+        });
+
+        if (!libraryRes.ok) {
+          throw new Error(`HTTP error! status: ${libraryRes.status}`);
+        }
+
+        const data = await libraryRes.json();
         console.log("📦 Datos recibidos:", data);
-        
+
         // Manejar diferentes formatos de respuesta
         let games = [];
-        
+
         if (Array.isArray(data)) {
           // Si ya es un array
           games = data;
@@ -49,16 +52,18 @@ function Library() {
           // Si viene en formato { games: [...] }
           games = data.games;
         }
-        
-        console.log("🎮 Juegos procesados:", games);
+
+        console.log("🎮 Juegos procesados:", games.length, "juegos");
         setLibrary(games);
         setLoading(false);
-      })
-      .catch((err) => {
+      } catch (err) {
         console.error("❌ Error cargando librería:", err);
         setError(err.message);
         setLoading(false);
-      });
+      }
+    };
+
+    loadLibrary();
   }, [API_URL]);
 
   if (loading)
