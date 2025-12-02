@@ -1,3 +1,4 @@
+// Importaciones de Firebase v11
 import { initializeApp } from "firebase/app";
 import { getDatabase } from "firebase/database";
 
