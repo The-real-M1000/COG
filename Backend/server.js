@@ -1,3 +1,4 @@
+require('dotenv').config(); // 🔹 cargar variables del .env
 const express = require('express');
 const session = require('express-session');
 const passport = require('passport');
@@ -6,28 +7,29 @@ const cors = require('cors');
 const fetch = (...args) => import('node-fetch').then(({ default: fetch }) => fetch(...args));
 
 const app = express();
-const PORT = 5000;
-const STEAM_API_KEY = "A9E487A997DC96F49F79FDB187B809EF";
+const PORT = process.env.PORT || 5000;
+const STEAM_API_KEY = process.env.STEAM_API_KEY;
+const FRONTEND_URL = process.env.FRONTEND_URL || 'http://localhost:3000';
 
 // =========================
-// 🔐 CORS
+// 🔐 CORS dinámico
 // =========================
 app.use(cors({
-  origin: 'http://localhost:3000',
+  origin: FRONTEND_URL,
   credentials: true
 }));
 
 // =========================
-// 🍪 SESIÓN (LA CORRECTA PARA PASSPORT)
+// 🍪 SESIÓN
 // =========================
 app.use(
   session({
-    secret: "clave_ultrasecreta_que_tu_cambias",
+    secret: process.env.SESSION_SECRET || "clave_ultrasecreta_123",
     resave: false,
     saveUninitialized: false,
     cookie: {
       maxAge: 24 * 60 * 60 * 1000, // 24h
-      secure: false // en localhost debe ser false
+      secure: FRONTEND_URL.startsWith('https://') // true solo en HTTPS
     }
   })
 );
@@ -47,8 +49,8 @@ passport.deserializeUser((obj, done) => done(null, obj));
 passport.use(
   new SteamStrategy(
     {
-      returnURL: "https://cog-lovat.vercel.app/api/auth/steam/return",
-      realm: "https://cog-lovat.vercel.app/",      
+      returnURL: `${FRONTEND_URL}/auth/steam/return`,
+      realm: FRONTEND_URL,
       apiKey: STEAM_API_KEY
     },
     function (identifier, profile, done) {
@@ -64,10 +66,10 @@ app.get("/auth/steam", passport.authenticate("steam"));
 // Steam devuelve aquí
 app.get(
   "/auth/steam/return",
-  passport.authenticate("steam", { failureRedirect: "http://localhost:3000/Login" }),
+  passport.authenticate("steam", { failureRedirect: `${FRONTEND_URL}/Login` }),
   (req, res) => {
     console.log("🔥 Usuario autenticado:", req.user.id);
-    res.redirect("http://localhost:3000/Library");
+    res.redirect(`${FRONTEND_URL}/Library`);
   }
 );
 
@@ -75,9 +77,7 @@ app.get(
 // 👤 Usuario logeado
 // =========================
 app.get('/api/user', (req, res) => {
-  if (!req.isAuthenticated()) {
-    return res.status(401).json({ error: "No autenticado" });
-  }
+  if (!req.isAuthenticated()) return res.status(401).json({ error: "No autenticado" });
   res.json(req.user);
 });
 
@@ -85,24 +85,15 @@ app.get('/api/user', (req, res) => {
 // 🎮 Biblioteca Steam
 // =========================
 app.get('/api/library', async (req, res) => {
-  if (!req.isAuthenticated()) {
-    return res.status(401).json({ error: "No autenticado" });
-  }
+  if (!req.isAuthenticated()) return res.status(401).json({ error: "No autenticado" });
 
   try {
     const steamID = req.user.id;
     const url = `https://api.steampowered.com/IPlayerService/GetOwnedGames/v1/?key=${STEAM_API_KEY}&steamid=${steamID}&include_appinfo=true&include_played_free_games=true`;
     
-    console.log("🌐 Consultando Steam:", url);
-    
     const response = await fetch(url);
     const data = await response.json();
-    
-    // Aquí está el error: la API devuelve directamente los datos en data.response.games
-    // No necesitas mapear, solo devuelves lo que Steam te da
     const games = data.response.games || [];
-    
-    console.log("✅ Juegos obtenidos:", games.length);
     
     res.json(games);
   } catch (err) {
@@ -115,5 +106,5 @@ app.get('/api/library', async (req, res) => {
 // 🚀 Servidor
 // =========================
 app.listen(PORT, () => {
-  console.log(`Servidor corriendo en http://localhost:${PORT}`);
+  console.log(`Servidor corriendo en ${PORT}`);
 });
