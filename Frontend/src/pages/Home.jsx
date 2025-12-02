@@ -13,7 +13,7 @@ export default function Home() {
 
   return (
     <div className="login-screen">
-      <h1 className="page-title">Bienvenido a COG</h1>
+      <h1 className="page-title">Bienvenido a COG<span class="emoji-color">❤️</span></h1>
       <p style={{ fontSize: '18px', color: '#aaa', marginTop: '20px' }}>
       Companion Of Gamers  
       </p>

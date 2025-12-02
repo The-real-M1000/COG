@@ -87,14 +87,14 @@ function Library() {
   if (loading)
     return (
       <div className="page" style={{ textAlign: "center", marginTop: "100px" }}>
-        <h1 className="page-title">Cargando tus jueguitos 👀...</h1>
+        <h1 className="page-title">Cargando tus juegos <span class="emoji-color">👀</span>...</h1>
       </div>
     );
 
   if (error)
     return (
       <div className="page" style={{ textAlign: "center", marginTop: "100px" }}>
-        <h1 className="page-title">😢 Error</h1>
+        <h1 className="page-title"><span class="emoji-color">😢</span> Error</h1>
         <p style={{ color: "#ff6b6b", marginTop: "20px" }}>{error}</p>
         <p style={{ color: "#aaa", marginTop: "10px" }}>
           Redirigiendo al login...

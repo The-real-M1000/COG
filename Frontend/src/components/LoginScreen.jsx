@@ -57,7 +57,7 @@ const LoginScreen = () => {
 
   return (
     <div className="login-screen">
-      <h1 className="login-title">Únete ahora 👤</h1>
+      <h1 className="login-title">Únete ahora <span class="emoji-color">👤</span></h1>
       <p style={{ color: '#aaa', marginBottom: '30px', fontSize: '16px' }}>
         Conecta tu cuenta de Steam para ver tu biblioteca
       </p>

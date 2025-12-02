@@ -16,6 +16,12 @@ html, body {
   height: 100%;
   overflow-x: hidden;
 }
+/* Clase para que los emojis mantengan su color natural */
+.emoji-color {
+  color: unset;      /* no hereda color */
+  font-family: "Apple Color Emoji", "Segoe UI Emoji", "NotoColorEmoji", "Android Emoji", sans-serif;
+}
+
 /* ===== HOME BACKGROUND ===== */
 body.home::before {
   content: '';
