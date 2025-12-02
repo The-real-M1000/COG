@@ -33,6 +33,7 @@ export default function OptimizedGameCard({ game, userId }) {
   const [imageLoaded, setImageLoaded] = useState(false);
   const [imageSrc, setImageSrc] = useState(null);
   const [isVisible, setIsVisible] = useState(false);
+  const [isHorizontal, setIsHorizontal] = useState(false);
   const cardRef = useRef(null);
 
   const gameName = game.name || "Juego desconocido";
@@ -52,7 +53,7 @@ export default function OptimizedGameCard({ game, userId }) {
         });
       },
       {
-        rootMargin: '50px', // Cargar 50px antes de entrar en vista
+        rootMargin: '50px',
         threshold: 0.01
       }
     );
@@ -74,25 +75,24 @@ export default function OptimizedGameCard({ game, userId }) {
 
     const img = new Image();
     img.src = verticalImg;
-    
+
     img.onload = () => {
       setImageSrc(verticalImg);
       setImageLoaded(true);
+      setIsHorizontal(img.width > img.height);
     };
 
     img.onerror = () => {
-      // Fallback a imagen horizontal
       const fallbackImg = new Image();
       fallbackImg.src = horizontalImg;
-      
+
       fallbackImg.onload = () => {
         setImageSrc(horizontalImg);
         setImageLoaded(true);
+        setIsHorizontal(fallbackImg.width > fallbackImg.height);
       };
 
-      fallbackImg.onerror = () => {
-        setImageLoaded(true);
-      };
+      fallbackImg.onerror = () => setImageLoaded(true);
     };
   }, [isVisible, verticalImg, horizontalImg]);
 
@@ -165,20 +165,27 @@ export default function OptimizedGameCard({ game, userId }) {
       className="game-card-vertical"
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
+      style={{
+        width: '200px',
+        height: '270px',
+        overflow: 'hidden',
+        borderRadius: '12px',
+        background: '#111'
+      }}
     >
       <h3 className="game-card-title">{gameName}</h3>
       
-      <div style={{ position: 'relative' }}>
+      <div style={{ position: 'relative', width: '100%', height: '100%' }}>
         <a 
           href={`https://store.steampowered.com/app/${game.appid}`}
           target="_blank"
           rel="noopener noreferrer"
-          className="game-card-image-vertical"
+          style={{ display: 'block', width: '100%', height: '100%' }}
         >
           {!imageLoaded && (
             <div style={{
               width: '100%',
-              height: '270px',
+              height: '100%',
               background: 'linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%)',
               display: 'flex',
               alignItems: 'center',
@@ -201,7 +208,10 @@ export default function OptimizedGameCard({ game, userId }) {
               src={imageSrc}
               alt={gameName}
               style={{ 
-                objectFit: "cover", 
+                objectFit: 'cover', 
+                objectPosition: 'center center',
+                width: '100%',
+                height: '100%',
                 cursor: "pointer",
                 opacity: imageLoaded ? 1 : 0,
                 transition: 'opacity 0.3s ease'
@@ -211,7 +221,6 @@ export default function OptimizedGameCard({ game, userId }) {
           )}
         </a>
         
-        {/* Overlay con botones */}
         {isHovered && imageLoaded && (
           <div 
             style={{
@@ -230,7 +239,6 @@ export default function OptimizedGameCard({ game, userId }) {
             }}
             onClick={(e) => e.preventDefault()}
           >
-            {/* Botón Like */}
             <button
               onClick={handleLike}
               disabled={isProcessing}
@@ -269,7 +277,6 @@ export default function OptimizedGameCard({ game, userId }) {
               />
             </button>
 
-            {/* Botón Played */}
             <button
               onClick={handlePlayed}
               disabled={isProcessing}
@@ -313,8 +320,6 @@ export default function OptimizedGameCard({ game, userId }) {
 
       <div className="game-card-content">
         <p className="game-card-description">{hoursPlayed} horas jugadas</p>
-        
-        {/* Indicadores pequeños cuando no hay hover */}
         {!isHovered && (isLiked || isPlayed) && (
           <div style={{ 
             display: 'flex', 
@@ -322,20 +327,8 @@ export default function OptimizedGameCard({ game, userId }) {
             justifyContent: 'center',
             marginTop: '8px'
           }}>
-            {isLiked && (
-              <Heart 
-                size={16} 
-                fill="#ff6b6b" 
-                color="#ff6b6b"
-              />
-            )}
-            {isPlayed && (
-              <Eye 
-                size={16} 
-                fill="#4ade80" 
-                color="#4ade80"
-              />
-            )}
+            {isLiked && <Heart size={16} fill="#ff6b6b" color="#ff6b6b" />}
+            {isPlayed && <Eye size={16} fill="#4ade80" color="#4ade80" />}
           </div>
         )}
       </div>
