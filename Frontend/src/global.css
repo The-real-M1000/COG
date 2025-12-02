@@ -16,10 +16,45 @@ html, body {
   height: 100%;
   overflow-x: hidden;
 }
-/* Clase para que los emojis mantengan su color natural */
+
+/* ===== EMOJI COLORS ===== */
+/* Aplicar grayscale solo a elementos de texto (esto afecta principalmente emojis) */
+.page-title,
+.login-title,
+.navbar-link,
+.game-card-title,
+.game-card-description {
+  filter: grayscale(1);
+}
+
+/* Elementos que contengan .emoji-color no deben tener grayscale */
+.page-title:has(.emoji-color),
+.login-title:has(.emoji-color),
+.navbar-link:has(.emoji-color),
+.game-card-title:has(.emoji-color),
+.game-card-description:has(.emoji-color) {
+  filter: none;
+}
+
+/* Los emoji-color específicos mantienen su color */
 .emoji-color {
-  color: unset;      /* no hereda color */
-  font-family: "Apple Color Emoji", "Segoe UI Emoji", "NotoColorEmoji", "Android Emoji", sans-serif;
+  filter: grayscale(0) !important;
+  display: inline-block;
+}
+
+/* Asegurar que imágenes, fondos y gradientes NO se afecten */
+.game-card-image-vertical,
+.game-card-image-vertical img,
+.game-card-vertical img,
+img {
+  filter: none !important;
+}
+
+.navbar,
+.game-card-vertical,
+.login-screen,
+.page {
+  filter: none !important;
 }
 
 /* ===== HOME BACKGROUND ===== */
