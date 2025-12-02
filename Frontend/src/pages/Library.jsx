@@ -1,23 +1,12 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { Heart, Eye } from 'lucide-react';
-import { 
-  addLikedGame, 
-  removeLikedGame, 
-  isGameLiked,
-  addPlayedGame,
-  removePlayedGame,
-  isGamePlayed
-} from "../utils/gameService";
+import OptimizedGameCard from "../components/OptimizedGameCard";
 
 function Library() {
   const [library, setLibrary] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [userId, setUserId] = useState(null);
-  const [gameStates, setGameStates] = useState({});
-  const [hoveredGame, setHoveredGame] = useState(null);
-  const [processingGame, setProcessingGame] = useState(null);
   const navigate = useNavigate();
 
   const API_URL = process.env.REACT_APP_API_URL || "http://localhost:5000";
@@ -78,17 +67,6 @@ function Library() {
 
         console.log("🎮 Juegos procesados:", games.length, "juegos");
         setLibrary(games);
-
-        // Cargar estados de todos los juegos
-        const states = {};
-        for (const game of games) {
-          const [liked, played] = await Promise.all([
-            isGameLiked(user.id, game.appid),
-            isGamePlayed(user.id, game.appid)
-          ]);
-          states[game.appid] = { liked, played };
-        }
-        setGameStates(states);
         setLoading(false);
       } catch (err) {
         console.error("❌ Error cargando librería:", err);
@@ -105,76 +83,6 @@ function Library() {
 
     loadLibrary();
   }, [API_URL, navigate]);
-
-  const handleLike = async (game, e) => {
-    e.preventDefault();
-    e.stopPropagation();
-    
-    if (processingGame === game.appid || !userId) return;
-    
-    setProcessingGame(game.appid);
-    
-    try {
-      const currentState = gameStates[game.appid]?.liked || false;
-      
-      if (currentState) {
-        const success = await removeLikedGame(userId, game.appid);
-        if (success) {
-          setGameStates(prev => ({
-            ...prev,
-            [game.appid]: { ...prev[game.appid], liked: false }
-          }));
-        }
-      } else {
-        const success = await addLikedGame(userId, game);
-        if (success) {
-          setGameStates(prev => ({
-            ...prev,
-            [game.appid]: { ...prev[game.appid], liked: true }
-          }));
-        }
-      }
-    } catch (error) {
-      console.error("Error toggling like:", error);
-    } finally {
-      setProcessingGame(null);
-    }
-  };
-
-  const handlePlayed = async (game, e) => {
-    e.preventDefault();
-    e.stopPropagation();
-    
-    if (processingGame === game.appid || !userId) return;
-    
-    setProcessingGame(game.appid);
-    
-    try {
-      const currentState = gameStates[game.appid]?.played || false;
-      
-      if (currentState) {
-        const success = await removePlayedGame(userId, game.appid);
-        if (success) {
-          setGameStates(prev => ({
-            ...prev,
-            [game.appid]: { ...prev[game.appid], played: false }
-          }));
-        }
-      } else {
-        const success = await addPlayedGame(userId, game);
-        if (success) {
-          setGameStates(prev => ({
-            ...prev,
-            [game.appid]: { ...prev[game.appid], played: true }
-          }));
-        }
-      }
-    } catch (error) {
-      console.error("Error toggling played:", error);
-    } finally {
-      setProcessingGame(null);
-    }
-  };
 
   if (loading)
     return (
@@ -218,171 +126,13 @@ function Library() {
         Pasa el mouse sobre un juego para marcarlo como favorito ❤️ o jugado 👁️
       </p>
       <div className="games-grid-vertical">
-        {library.map((game) => {
-          const gameName = game.name || "Juego desconocido";
-          const hoursPlayed = ((game.playtime_forever || 0) / 60).toFixed(1);
-          const verticalImg = `https://cdn.cloudflare.steamstatic.com/steam/apps/${game.appid}/library_600x900.jpg`;
-          const horizontalImg = `https://cdn.cloudflare.steamstatic.com/steam/apps/${game.appid}/header.jpg`;
-          const isHovered = hoveredGame === game.appid;
-          const isLiked = gameStates[game.appid]?.liked || false;
-          const isPlayed = gameStates[game.appid]?.played || false;
-          const isProcessing = processingGame === game.appid;
-
-          return (
-            <div 
-              key={game.appid}
-              className="game-card-vertical"
-              onMouseEnter={() => setHoveredGame(game.appid)}
-              onMouseLeave={() => setHoveredGame(null)}
-            >
-              <h3 className="game-card-title">{gameName}</h3>
-              
-              <div style={{ position: 'relative' }}>
-                <a 
-                  href={`https://store.steampowered.com/app/${game.appid}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="game-card-image-vertical"
-                >
-                  <img
-                    src={verticalImg}
-                    alt={gameName}
-                    onError={(e) => (e.currentTarget.src = horizontalImg)}
-                    style={{ objectFit: "cover", cursor: "pointer" }}
-                  />
-                </a>
-                
-                {/* Overlay con botones */}
-                {isHovered && (
-                  <div 
-                    style={{
-                      position: 'absolute',
-                      top: 0,
-                      left: 0,
-                      right: 0,
-                      bottom: 0,
-                      background: 'rgba(0, 0, 0, 0.7)',
-                      display: 'flex',
-                      justifyContent: 'center',
-                      alignItems: 'center',
-                      gap: '20px',
-                      transition: 'opacity 0.3s ease',
-                      zIndex: 10
-                    }}
-                    onClick={(e) => e.preventDefault()}
-                  >
-                    {/* Botón Like */}
-                    <button
-                      onClick={(e) => handleLike(game, e)}
-                      disabled={isProcessing}
-                      style={{
-                        background: isLiked 
-                          ? 'linear-gradient(135deg, #ff6b6b, #ee5a6f)' 
-                          : 'rgba(255, 255, 255, 0.2)',
-                        border: isLiked ? 'none' : '2px solid rgba(255, 255, 255, 0.4)',
-                        borderRadius: '50%',
-                        width: '50px',
-                        height: '50px',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        cursor: isProcessing ? 'not-allowed' : 'pointer',
-                        transition: 'all 0.3s ease',
-                        opacity: isProcessing ? 0.6 : 1,
-                        transform: isLiked ? 'scale(1.1)' : 'scale(1)',
-                      }}
-                      onMouseEnter={(e) => {
-                        if (!isProcessing) {
-                          e.currentTarget.style.transform = 'scale(1.15)';
-                          e.currentTarget.style.boxShadow = '0 8px 20px rgba(255, 107, 107, 0.4)';
-                        }
-                      }}
-                      onMouseLeave={(e) => {
-                        e.currentTarget.style.transform = isLiked ? 'scale(1.1)' : 'scale(1)';
-                        e.currentTarget.style.boxShadow = 'none';
-                      }}
-                    >
-                      <Heart 
-                        size={24} 
-                        fill={isLiked ? '#fff' : 'none'} 
-                        color="#fff"
-                        style={{ transition: 'all 0.3s ease' }}
-                      />
-                    </button>
-
-                    {/* Botón Played */}
-                    <button
-                      onClick={(e) => handlePlayed(game, e)}
-                      disabled={isProcessing}
-                      style={{
-                        background: isPlayed 
-                          ? 'linear-gradient(135deg, #4ade80, #22c55e)' 
-                          : 'rgba(255, 255, 255, 0.2)',
-                        border: isPlayed ? 'none' : '2px solid rgba(255, 255, 255, 0.4)',
-                        borderRadius: '50%',
-                        width: '50px',
-                        height: '50px',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        cursor: isProcessing ? 'not-allowed' : 'pointer',
-                        transition: 'all 0.3s ease',
-                        opacity: isProcessing ? 0.6 : 1,
-                        transform: isPlayed ? 'scale(1.1)' : 'scale(1)',
-                      }}
-                      onMouseEnter={(e) => {
-                        if (!isProcessing) {
-                          e.currentTarget.style.transform = 'scale(1.15)';
-                          e.currentTarget.style.boxShadow = '0 8px 20px rgba(74, 222, 128, 0.4)';
-                        }
-                      }}
-                      onMouseLeave={(e) => {
-                        e.currentTarget.style.transform = isPlayed ? 'scale(1.1)' : 'scale(1)';
-                        e.currentTarget.style.boxShadow = 'none';
-                      }}
-                    >
-                      <Eye 
-                        size={24} 
-                        fill={isPlayed ? '#fff' : 'none'} 
-                        color="#fff"
-                        style={{ transition: 'all 0.3s ease' }}
-                      />
-                    </button>
-                  </div>
-                )}
-              </div>
-
-              <div className="game-card-content">
-                <p className="game-card-description">{hoursPlayed} horas jugadas</p>
-                
-                {/* Indicadores pequeños cuando no hay hover */}
-                {!isHovered && (isLiked || isPlayed) && (
-                  <div style={{ 
-                    display: 'flex', 
-                    gap: '8px', 
-                    justifyContent: 'center',
-                    marginTop: '8px'
-                  }}>
-                    {isLiked && (
-                      <Heart 
-                        size={16} 
-                        fill="#ff6b6b" 
-                        color="#ff6b6b"
-                      />
-                    )}
-                    {isPlayed && (
-                      <Eye 
-                        size={16} 
-                        fill="#4ade80" 
-                        color="#4ade80"
-                      />
-                    )}
-                  </div>
-                )}
-              </div>
-            </div>
-          );
-        })}
+        {library.map((game) => (
+          <OptimizedGameCard 
+            key={game.appid} 
+            game={game} 
+            userId={userId}
+          />
+        ))}
       </div>
     </div>
   );
