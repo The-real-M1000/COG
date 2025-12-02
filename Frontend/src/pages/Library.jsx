@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import OptimizedGameCard from "../components/OptimizedGameCard";
+import GameCard from "../components/GameCard";
 
 function Library() {
   const [library, setLibrary] = useState([]);
@@ -127,7 +127,7 @@ function Library() {
       </p>
       <div className="games-grid-vertical">
         {library.map((game) => (
-          <OptimizedGameCard 
+          <GameCard 
             key={game.appid} 
             game={game} 
             userId={userId}
