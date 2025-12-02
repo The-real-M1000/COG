@@ -4,8 +4,11 @@ function Library() {
   const [library, setLibrary] = useState([]);
   const [loading, setLoading] = useState(true);
 
+  // 🔹 Usar variable de entorno para el backend
+  const API_URL = process.env.REACT_APP_API_URL || "http://localhost:5000";
+
   useEffect(() => {
-    fetch("http://localhost:5000/api/library", {
+    fetch(`${API_URL}/api/library`, {
       credentials: "include",
     })
       .then((res) => res.json())
@@ -17,7 +20,7 @@ function Library() {
         console.error("Error cargando librería:", err);
         setLoading(false);
       });
-  }, []);
+  }, [API_URL]);
 
   if (loading)
     return (
