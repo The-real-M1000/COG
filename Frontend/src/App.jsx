@@ -7,6 +7,7 @@ import Library from "./pages/Library";
 import Played from "./pages/Played";
 import Recomendation from "./pages/Recommendation";
 import WhatToPlay from "./pages/WhatToPlay";
+import AuthCallback from "./pages/AuthCallback";
 
 function App() {
   return (
@@ -16,6 +17,7 @@ function App() {
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/login" element={<Login />} />
+        <Route path="/auth-callback" element={<AuthCallback />} />
         <Route path="/library" element={<Library />} />
         <Route path="/played" element={<Played />} />
         <Route path="/recomendation" element={<Recomendation />} />
