@@ -9,7 +9,8 @@
     "passport": "^0.7.0",
     "passport-steam": "^1.0.18",
     "cookie-session": "^2.1.1",
-    "node-fetch": "^2.7.0"
+    "node-fetch": "^2.7.0",
+    "dotenv": "^16.4.5"
   },
   "scripts": {
     "start": "node server.js"
