@@ -5,6 +5,7 @@ import Home from "./pages/Home";
 import Login from "./pages/Login";
 import Library from "./pages/Library";
 import Played from "./pages/Played";
+import Favorites from "./pages/Favorites";
 import Recomendation from "./pages/Recommendation";
 import WhatToPlay from "./pages/WhatToPlay";
 import AuthCallback from "./pages/AuthCallback";
@@ -20,6 +21,7 @@ function App() {
         <Route path="/auth-callback" element={<AuthCallback />} />
         <Route path="/library" element={<Library />} />
         <Route path="/played" element={<Played />} />
+        <Route path="/favorites" element={<Favorites />} />
         <Route path="/recomendation" element={<Recomendation />} />
         <Route path="/what_to_play" element={<WhatToPlay />} />
       </Routes>

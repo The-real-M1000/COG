@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import GameCard from "../components/GameCard";
-import { getPlayedGames } from "../utils/gameService";
+import { getLikedGames } from "../utils/gameService";
 
-export default function Played() {
-  const [playedGames, setPlayedGames] = useState([]);
+export default function Favorites() {
+  const [likedGames, setLikedGames] = useState([]);
   const [loading, setLoading] = useState(true);
   const [userId, setUserId] = useState(null);
   const navigate = useNavigate();
@@ -12,7 +12,7 @@ export default function Played() {
   const API_URL = process.env.REACT_APP_API_URL || "http://localhost:5000";
 
   useEffect(() => {
-    const loadPlayedGames = async () => {
+    const loadLikedGames = async () => {
       try {
         const token = localStorage.getItem("steam_token");
 
@@ -37,33 +37,33 @@ export default function Played() {
         const user = await userRes.json();
         setUserId(user.id);
 
-        // Obtener juegos jugados desde Firebase
-        const games = await getPlayedGames(user.id);
-        console.log("👁️ Juegos jugados:", games.length);
-        setPlayedGames(games);
+        // Obtener juegos favoritos desde Firebase
+        const games = await getLikedGames(user.id);
+        console.log("❤️ Juegos favoritos:", games.length);
+        setLikedGames(games);
         setLoading(false);
       } catch (err) {
-        console.error("❌ Error cargando juegos jugados:", err);
+        console.error("❌ Error cargando favoritos:", err);
         setLoading(false);
       }
     };
 
-    loadPlayedGames();
+    loadLikedGames();
   }, [API_URL, navigate]);
 
   if (loading) {
     return (
       <div className="page" style={{ textAlign: "center", marginTop: "100px" }}>
-        <h1 className="page-title">Cargando juegos jugados...</h1>
+        <h1 className="page-title">Cargando favoritos...</h1>
       </div>
     );
   }
 
-  if (playedGames.length === 0) {
+  if (likedGames.length === 0) {
     return (
       <div className="login-screen">
         <h1 className="page-title" style={{ textAlign: "center" }}>
-          👁️ Juegos Jugados
+          ❤️ Juegos Favoritos
         </h1>
         <p style={{ 
           textAlign: "center", 
@@ -71,7 +71,7 @@ export default function Played() {
           marginTop: "20px",
           fontSize: "16px"
         }}>
-          Aún no has marcado ningún juego como jugado.
+          Aún no has marcado ningún juego como favorito.
         </p>
         <p style={{ 
           textAlign: "center", 
@@ -79,7 +79,7 @@ export default function Played() {
           marginTop: "10px",
           fontSize: "14px"
         }}>
-          Ve a tu biblioteca y marca los juegos que ya jugaste 🎮
+          Ve a tu biblioteca y marca tus juegos favoritos con ❤️
         </p>
       </div>
     );
@@ -88,7 +88,7 @@ export default function Played() {
   return (
     <div className="login-screen">
       <h1 className="page-title" style={{ textAlign: "center" }}>
-        👁️ Juegos Jugados ({playedGames.length})
+        ❤️ Juegos Favoritos ({likedGames.length})
       </h1>
       <p style={{ 
         textAlign: "center", 
@@ -96,10 +96,10 @@ export default function Played() {
         marginBottom: "30px",
         fontSize: "14px"
       }}>
-        Juegos que has marcado como jugados
+        Tus juegos favoritos de Steam
       </p>
       <div className="games-grid-vertical">
-        {playedGames.map((game) => (
+        {likedGames.map((game) => (
           <GameCard 
             key={game.appid} 
             game={game} 
