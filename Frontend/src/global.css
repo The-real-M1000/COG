@@ -18,28 +18,32 @@ html, body {
 }
 
 /* ===== EMOJI COLORS ===== */
-/* Aplicar grayscale solo a elementos de texto (esto afecta principalmente emojis) */
+/* Solución sin capa blanca: usar opacity para simular B&N en emojis */
+.emoji-bw {
+  display: inline-block;
+  opacity: 0.4;
+  filter: grayscale(100%);
+  -webkit-filter: grayscale(100%);
+}
+
+/* Los emoji-color mantienen su color y opacidad completa */
+.emoji-color {
+  display: inline-block;
+  opacity: 1 !important;
+  filter: none !important;
+  -webkit-filter: none !important;
+  /* Forzar re-rendering limpio */
+  transform: translateZ(0);
+  will-change: transform;
+}
+
+/* NO aplicar filtros a nivel de contenedor */
 .page-title,
 .login-title,
 .navbar-link,
 .game-card-title,
 .game-card-description {
-  filter: grayscale(1);
-}
-
-/* Elementos que contengan .emoji-color no deben tener grayscale */
-.page-title:has(.emoji-color),
-.login-title:has(.emoji-color),
-.navbar-link:has(.emoji-color),
-.game-card-title:has(.emoji-color),
-.game-card-description:has(.emoji-color) {
-  filter: none;
-}
-
-/* Los emoji-color específicos mantienen su color */
-.emoji-color {
-  filter: grayscale(0) !important;
-  display: inline-block;
+  /* Sin filtro aquí, lo aplicamos individualmente a cada emoji */
 }
 
 /* Asegurar que imágenes, fondos y gradientes NO se afecten */
@@ -48,6 +52,7 @@ html, body {
 .game-card-vertical img,
 img {
   filter: none !important;
+  -webkit-filter: none !important;
 }
 
 .navbar,
@@ -55,6 +60,7 @@ img {
 .login-screen,
 .page {
   filter: none !important;
+  -webkit-filter: none !important;
 }
 
 /* ===== HOME BACKGROUND ===== */
