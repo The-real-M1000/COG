@@ -16,6 +16,11 @@ function Library() {
         // Obtener el token del localStorage
         const token = localStorage.getItem("steam_token");
 
+        console.log("🔍 Buscando token...");
+        console.log("📦 Token en localStorage:", token ? "✅ EXISTE" : "❌ NO EXISTE");
+        console.log("📝 Contenido del token:", token ? token.substring(0, 30) + "..." : "null");
+        console.log("🗄️ Todos los items en localStorage:", Object.keys(localStorage));
+
         if (!token) {
           throw new Error("No autenticado. Inicia sesión primero.");
         }
