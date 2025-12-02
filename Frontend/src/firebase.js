@@ -9,9 +9,16 @@ const firebaseConfig = {
   messagingSenderId: process.env.REACT_APP_FIREBASE_MESSAGING_SENDER_ID,
   appId: process.env.REACT_APP_FIREBASE_APP_ID,
   measurementId: process.env.REACT_APP_FIREBASE_MEASUREMENT_ID,
+  // IMPORTANTE: Añade la URL de tu Realtime Database
+  databaseURL: `https://${process.env.REACT_APP_FIREBASE_PROJECT_ID}-default-rtdb.firebaseio.com`
 };
 
+// Inicializar Firebase
 const app = initializeApp(firebaseConfig);
+
+// Inicializar Realtime Database
 const db = getDatabase(app);
+
+console.log("🔥 Firebase inicializado correctamente");
 
 export { db };
