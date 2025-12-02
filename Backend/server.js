@@ -9,7 +9,10 @@ const fetch = (...args) => import('node-fetch').then(({ default: fetch }) => fet
 const app = express();
 const PORT = process.env.PORT || 5000;
 const STEAM_API_KEY = process.env.STEAM_API_KEY;
+
+// URLs desde .env
 const FRONTEND_URL = process.env.FRONTEND_URL || 'http://localhost:3000';
+const BACKEND_URL = process.env.BACKEND_URL || 'http://localhost:5000';
 
 // =========================
 // 🔐 CORS dinámico
@@ -49,8 +52,8 @@ passport.deserializeUser((obj, done) => done(null, obj));
 passport.use(
   new SteamStrategy(
     {
-      returnURL: `${FRONTEND_URL}/auth/steam/return`,
-      realm: FRONTEND_URL,
+      returnURL: `${BACKEND_URL}/auth/steam/return`, // <--- backend
+      realm: BACKEND_URL,                           // <--- backend
       apiKey: STEAM_API_KEY
     },
     function (identifier, profile, done) {
@@ -69,7 +72,7 @@ app.get(
   passport.authenticate("steam", { failureRedirect: `${FRONTEND_URL}/Login` }),
   (req, res) => {
     console.log("🔥 Usuario autenticado:", req.user.id);
-    res.redirect(`${FRONTEND_URL}/Library`);
+    res.redirect(`${FRONTEND_URL}/Library`); // <--- frontend
   }
 );
 
