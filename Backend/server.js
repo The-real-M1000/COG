@@ -37,7 +37,7 @@ app.use(
     resave: false,
     saveUninitialized: false,
     cookie: {
-      maxAge: 10 * 60 * 1000, // Solo 10 minutos para el flujo de autenticación
+      maxAge: 10 * 60 * 1000,
       secure: FRONTEND_URL.startsWith('https://'),
       httpOnly: true,
       sameSite: FRONTEND_URL.startsWith('https://') ? 'none' : 'lax'
@@ -64,7 +64,7 @@ function authenticateJWT(req, res, next) {
     return res.status(401).json({ error: "No autenticado - Token requerido" });
   }
 
-  const token = authHeader.substring(7); // Remover 'Bearer '
+  const token = authHeader.substring(7);
   
   try {
     const decoded = jwt.verify(token, JWT_SECRET);
@@ -104,7 +104,6 @@ app.get(
   (req, res) => {
     console.log("🔥 Usuario autenticado:", req.user.id);
     
-    // Crear JWT con la info del usuario
     const token = jwt.sign(
       {
         id: req.user.id,
@@ -113,12 +112,11 @@ app.get(
         profileUrl: req.user._json?.profileurl
       },
       JWT_SECRET,
-      { expiresIn: '7d' } // Token válido por 7 días
+      { expiresIn: '7d' }
     );
     
     console.log("🎟️ JWT generado");
     
-    // Redirigir al frontend con el token en la URL
     res.redirect(`${FRONTEND_URL}/auth-callback?token=${token}`);
   }
 );
@@ -158,8 +156,34 @@ app.get('/api/library', authenticateJWT, async (req, res) => {
 // 🚪 Logout
 // =========================
 app.get('/api/logout', (req, res) => {
-  // Con JWT, el logout es del lado del cliente (eliminar el token)
   res.json({ message: "Elimina el token del localStorage" });
+});
+
+// =========================
+// 🟣🔥 DEEPSEEK PROXY (LO NUEVO)
+// =========================
+app.post("/api/deepseek", async (req, res) => {
+  try {
+    const response = await fetch("https://api.deepseek.com/v1/chat/completions", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${process.env.REACT_APP_DEEPSEEK_API_KEY}`
+      },
+      body: JSON.stringify({
+        model: "deepseek-chat",
+        messages: req.body.messages,
+        temperature: 0.7,
+        max_tokens: 500
+      })
+    });
+
+    const data = await response.json();
+    res.json(data);
+  } catch (err) {
+    console.error("❌ Error DeepSeek:", err);
+    res.status(500).json({ error: "DeepSeek no respondió" });
+  }
 });
 
 // =========================
@@ -178,5 +202,6 @@ app.listen(PORT, () => {
 📍 Backend URL: ${BACKEND_URL}
 🌐 Frontend URL: ${FRONTEND_URL}
 🔐 JWT Authentication activado
+🤖 DeepSeek Proxy activo (/api/deepseek)
   `);
 });

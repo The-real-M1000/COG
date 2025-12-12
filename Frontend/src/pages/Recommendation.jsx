@@ -13,7 +13,6 @@ export default function Recommendation() {
   const navigate = useNavigate();
 
   const API_URL = process.env.REACT_APP_API_URL || "http://localhost:5000";
-  const DEEPSEEK_API_KEY = process.env.REACT_APP_DEEPSEEK_API_KEY || "sk-your-key-here";
 
   // Scroll automático al último mensaje
   const scrollToBottom = () => {
@@ -59,7 +58,8 @@ export default function Recommendation() {
         setMessages([
           {
             role: "assistant",
-            content: "¿No sabes qué jugar? 🎮\n\nCuéntame qué tipo de experiencia buscas y te recomendaré juegos basándome en tus favoritos.",
+            content:
+              "¿No sabes qué jugar? 🎮\n\nCuéntame qué tipo de experiencia buscas y te recomendaré juegos basándome en tus favoritos.",
             timestamp: new Date(),
           },
         ]);
@@ -74,7 +74,7 @@ export default function Recommendation() {
   // Crear pre-prompt con juegos favoritos
   const createSystemPrompt = () => {
     const gamesList = likedGames.map((g) => g.name).join(", ");
-    
+
     return `Eres un asistente experto en recomendaciones de videojuegos. 
 
 El usuario tiene los siguientes juegos favoritos: ${gamesList || "ninguno aún"}.
@@ -91,7 +91,7 @@ INSTRUCCIONES:
 Responde siempre en español de manera casual y cercana.`;
   };
 
-  // Enviar mensaje a DeepSeek
+  // Enviar mensaje a DeepSeek (PROXY BACKEND)
   const sendMessage = async () => {
     if (!input.trim() || loading) return;
 
@@ -106,23 +106,19 @@ Responde siempre en español de manera casual y cercana.`;
     setLoading(true);
 
     try {
-      const response = await fetch("https://api.deepseek.com/v1/chat/completions", {
+      const response = await fetch(`${API_URL}/api/deepseek`, {
         method: "POST",
         headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${DEEPSEEK_API_KEY}`,
+          "Content-Type": "application/json"
         },
         body: JSON.stringify({
-          model: "deepseek-chat",
           messages: [
             { role: "system", content: createSystemPrompt() },
             ...messages
               .filter((m) => m.role !== "system")
               .map((m) => ({ role: m.role, content: m.content })),
             { role: "user", content: input },
-          ],
-          temperature: 0.7,
-          max_tokens: 500,
+          ]
         }),
       });
 
@@ -133,7 +129,7 @@ Responde siempre en español de manera casual y cercana.`;
       const data = await response.json();
       const botMessage = {
         role: "assistant",
-        content: data.choices[0].message.content,
+        content: data.choices?.[0]?.message?.content || "Error procesando respuesta.",
         timestamp: new Date(),
       };
 
@@ -161,11 +157,14 @@ Responde siempre en español de manera casual y cercana.`;
   };
 
   return (
-    <div className="login-screen" style={{ 
-      maxWidth: "900px", 
-      margin: "0 auto",
-      paddingTop: "100px"
-    }}>
+    <div
+      className="login-screen"
+      style={{
+        maxWidth: "900px",
+        margin: "0 auto",
+        paddingTop: "100px",
+      }}
+    >
       <h1 className="page-title" style={{ marginBottom: "30px" }}>
         <span className="emoji-color">🤖</span> Recomendaciones IA
       </h1>
@@ -317,7 +316,7 @@ Responde siempre en español de manera casual y cercana.`;
                 style={{
                   width: "100%",
                   background: "rgba(255, 255, 255, 0.1)",
-                  border: "1px solid rgba(255, 255, 255, 0.2)",
+                  border: ":1px solid rgba(255, 255, 255, 0.2)",
                   borderRadius: "12px",
                   padding: "12px 16px",
                   color: "#fff",
@@ -336,9 +335,10 @@ Responde siempre en español de manera casual y cercana.`;
               onClick={sendMessage}
               disabled={loading || !input.trim()}
               style={{
-                background: loading || !input.trim() 
-                  ? "rgba(110, 52, 191, 0.3)" 
-                  : "linear-gradient(135deg, #6E34BF, #872ADD)",
+                background:
+                  loading || !input.trim()
+                    ? "rgba(110, 52, 191, 0.3)"
+                    : "linear-gradient(135deg, #6E34BF, #872ADD)",
                 border: "none",
                 borderRadius: "12px",
                 width: "48px",
@@ -357,12 +357,14 @@ Responde siempre en español de manera casual y cercana.`;
       </div>
 
       {/* Info Footer */}
-      <p style={{ 
-        textAlign: "center", 
-        color: "#666", 
-        fontSize: "13px", 
-        marginTop: "20px" 
-      }}>
+      <p
+        style={{
+          textAlign: "center",
+          color: "#666",
+          fontSize: "13px",
+          marginTop: "20px",
+        }}
+      >
         Basado en {likedGames.length} juegos favoritos • Powered by DeepSeek AI
       </p>
     </div>

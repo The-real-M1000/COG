@@ -65,27 +65,7 @@ const LoginScreen = () => {
         Iniciar sesión con Steam
       </button>
       
-      {/* Botón de debug */}
-      <div style={{ marginTop: '40px' }}>
-        <button 
-          onClick={() => {
-            const token = localStorage.getItem("steam_token");
-            console.log("🔍 Token actual:", token ? "Existe" : "No existe");
-            console.log("📝 Token completo:", token);
-          }}
-          style={{
-            padding: '8px 16px',
-            background: 'rgba(255,255,255,0.1)',
-            border: '1px solid rgba(255,255,255,0.2)',
-            borderRadius: '8px',
-            color: '#aaa',
-            cursor: 'pointer',
-            fontSize: '12px'
-          }}
-        >
-          🔍 Verificar Token (Debug)
-        </button>
-      </div>
+     
     </div>
   );
 };
