@@ -160,15 +160,23 @@ app.get('/api/logout', (req, res) => {
 });
 
 // =========================
-// 🟣🔥 DEEPSEEK PROXY (LO NUEVO)
+// 🟣🔥 DEEPSEEK PROXY (CORREGIDO)
 // =========================
 app.post("/api/deepseek", async (req, res) => {
   try {
+    // ✅ Verificar que la API key existe
+    if (!process.env.DEEPSEEK_API_KEY) {
+      console.error("❌ DEEPSEEK_API_KEY no está configurada");
+      return res.status(500).json({ error: "API key de DeepSeek no configurada" });
+    }
+
+    console.log("🤖 Llamando a DeepSeek API...");
+
     const response = await fetch("https://api.deepseek.com/v1/chat/completions", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        "Authorization": `Bearer ${process.env.REACT_APP_DEEPSEEK_API_KEY}`
+        "Authorization": `Bearer ${process.env.DEEPSEEK_API_KEY}` // ✅ CORREGIDO
       },
       body: JSON.stringify({
         model: "deepseek-chat",
@@ -178,14 +186,23 @@ app.post("/api/deepseek", async (req, res) => {
       })
     });
 
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error("❌ Error de DeepSeek:", response.status, errorText);
+      return res.status(response.status).json({ 
+        error: `DeepSeek API error: ${response.status}` 
+      });
+    }
+
     const data = await response.json();
+    console.log("✅ Respuesta de DeepSeek recibida");
     res.json(data);
+    
   } catch (err) {
     console.error("❌ Error DeepSeek:", err);
     res.status(500).json({ error: "DeepSeek no respondió" });
   }
 });
-
 // =========================
 // 🏥 Health check
 // =========================
